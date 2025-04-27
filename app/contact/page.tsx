@@ -22,30 +22,40 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
-      try {
-          const response = await fetch('/api/contact', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(formData)
-          })
+      const handleSubmit = async (e: React.FormEvent) => {
+          e.preventDefault()
+          try {
+              // Validate form data
+              if (!formData.name || !formData.email || !formData.wechat || !formData.message) {
+                  alert("Please fill in all required fields")
+                  return
+              }
 
-          const result = await response.json()
-        
-          if (result.success) {
-              alert("Message sent successfully!")
-              setFormData({ name: "", wechat: "", email: "", message: "" })
-          } else {
-              alert("Failed to send message. Please try again.")
+              console.log('Submitting form data:', formData)
+
+              const response = await fetch('/api/contact', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(formData)
+              })
+
+              console.log('Response status:', response.status)
+              const result = await response.json()
+              console.log('Response data:', result)
+            
+              if (result.success) {
+                  alert("Message sent successfully!")
+                  setFormData({ name: "", wechat: "", email: "", message: "" })
+              } else {
+                  alert(`Failed to send message: ${result.message || 'Please try again.'}`)
+              }
+          } catch (error) {
+              console.error('Error submitting form:', error)
+              alert("An error occurred. Please try again later.")
           }
-      } catch (error) {
-          console.error('Error submitting form:', error)
-          alert("An error occurred. Please try again later.")
       }
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
